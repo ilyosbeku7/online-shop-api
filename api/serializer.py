@@ -19,19 +19,21 @@ class ProductSerializer(serializers.Serializer):
         price = validated_data.get('price')
         about = validated_data.get('about')
         image = validated_data.get('image')
-        cat = validated_data.get('cat')
+        cat_name = validated_data.get('cat')
 
-        Product.objects.create(
-                name=name,
-                price=price,
-                about=about,
-                image=image,
-                cat=cat
-            
-            )
+        category, created = Category.objects.get_or_create(name=cat_name)
 
-        return validated_data
+        validated_data['cat'] = category
 
+        product = Product.objects.create(
+            name=name,
+            price=price,
+            about=about,
+            image=image,
+            cat=category
+        )
+
+        return product
 class CategoryProductSerializer(serializers.ModelSerializer):
     products = serializers.SerializerMethodField()
 
@@ -52,7 +54,7 @@ class CategorySerializer(serializers.Serializer):
         name = validated_data.get('name')
         
     
-        Product.objects.create(
+        Category.objects.create(
                 name=name,
               
         )

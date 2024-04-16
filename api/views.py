@@ -28,13 +28,15 @@ class ProductDetailView(APIView):
 
     def put(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
-        result=request.data
+        result = request.data
         serializer = ProductSerializer(instance=product, data=result)
-
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        validated_data = serializer.validated_data
+        product.name = validated_data['name']
+        product.price = validated_data['price']
+        product.save()
         return Response(data=serializer.data)
-
+    
     def delete(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         product.delete()
@@ -50,24 +52,26 @@ class CategorySerializerView(APIView):
     def post(self, request):
         serializer = CategorySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-
+        category = serializer.create(serializer.validated_data)
         return Response(serializer.data)
 
 class CategoryDetailView(APIView):
 
     def put(self, request, pk):
-        categories = get_object_or_404(Category, pk=pk)
-        serializer = ProductSerializer(categories, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
+        category = get_object_or_404(Category, pk=pk)
+        result = request.data
+        serializer = CategorySerializer(instance=category, data=result)
+        serializer.is_valid(raise_exception=True)
+        validated_data = serializer.validated_data
+        category.name = validated_data['name']
+        category.save()
         return Response(data=serializer.data)
+    
 
     def delete(self, request, pk):
         category = get_object_or_404(Category, pk=pk)
         category.delete()
-        return Response(category)
+        return Response("succsec: delete")
 
 @api_view(['GET'])
 def get_products_by_category(request, id):
