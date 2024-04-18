@@ -5,9 +5,11 @@ from rest_framework.views import APIView
 from product.models import Product, Category
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 class ProductView(APIView):
+    permission_classes=(IsAuthenticated, )
     def get(self, request):
         products = Product.objects.all()
         serializer = ProductSerializer(products, many=True)
